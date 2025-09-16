@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GenAI-RAG-App Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; }
+    #chat { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: auto; margin-bottom: 1em; }
+    #input { width: 80%; }
+    #send { width: 18%; }
+  </style>
+</head>
+<body>
+  <h1>GenAI-RAG-App Chatbot</h1>
+  <div id="chat"></div>
+  <input id="input" type="text" placeholder="Type your question..." />
+  <button id="send">Send</button>
+  <audio id="tts" controls style="display:none;"></audio>
+  <script>
+    const chatDiv = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const send = document.getElementById('send');
+    const tts = document.getElementById('tts');
+    send.onclick = async () => {
+      const query = input.value;
+      if (!query) return;
+      chatDiv.innerHTML += `<div><b>You:</b> ${query}</div>`;
+      input.value = '';
+      const res = await fetch('/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      const data = await res.json();
+      chatDiv.innerHTML += `<div><b>Bot:</b> ${data.response}</div>`;
+      // TTS playback (placeholder: expects audio as base64 or URL)
+      if (data.audio) {
+        // For demo, just show audio element
+        tts.src = data.audio; // Replace with actual audio URL or data
+        tts.style.display = 'block';
+        tts.play();
+      }
+    };
+  </script>
+</body>
+</html>
