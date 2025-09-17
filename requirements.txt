@@ -3,3 +3,4 @@ azure-search-documents
 openai
 uvicorn
 pytest
+python-dotenv

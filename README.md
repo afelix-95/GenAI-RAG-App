@@ -31,7 +31,8 @@ CHALLENGES.md      # Write-up on technical challenges
 - **GitHub Repository**: Fork or clone this repository.
 - **Secrets**:
   - `AZURE_SEARCH_ENDPOINT`, `AZURE_SEARCH_API_KEY`, `AZURE_SEARCH_INDEX`
-  - `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT`
+  - `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT`, `TTS_MODEL_NAME`
+  - `EMBEDDING_MODEL_NAME`
 - **Tools**:
   - Azure CLI
   - Python 3.10+
@@ -56,8 +57,8 @@ CHALLENGES.md      # Write-up on technical challenges
 	- Front-end: `npm install` (if using React/JS)
 
 5. **Run Locally**:
-	- API: `uvicorn api.main:app --reload`
-	- Front-end: `npm start` or open `frontend/index.html`
+	- Start the API server: `uvicorn api.main:app --reload`
+	- Open the front-end in your browser: `http://localhost:8000/` (served by the API)
 
 6. **Deploy**:
 	- Use Azure Functions deployment scripts (see documentation for details).
@@ -72,7 +73,7 @@ CHALLENGES.md      # Write-up on technical challenges
 
 ## Dependencies
 
-- **Python**: See `requirements.txt` for backend dependencies (FastAPI, azure-search-documents, openai, etc.)
+- **Python**: See `requirements.txt` for backend dependencies (FastAPI, azure-search-documents, openai, python-dotenv, etc.)
 - **Node.js**: See `package.json` for front-end dependencies.
 
 ## Monitoring and Outputs
