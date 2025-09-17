@@ -1,40 +1,35 @@
 
 # GenAI-RAG-App
 
-This project demonstrates an end-to-end generative AI chatbot pipeline with Retrieval-Augmented Generation (RAG) and text-to-speech (TTS), deployed serverlessly on Azure Functions. It leverages Azure AI Search for document retrieval, GPT-4o-mini-tts for generation and TTS, and FastAPI for API endpoints. The front-end provides a simple chat interface with TTS playback.
+This project demonstrates an end-to-end generative AI chatbot pipeline with Retrieval-Augmented Generation (RAG) and text-to-speech (TTS), deployed serverlessly on Azure Functions. The app acts as a "PSI 20 expert," using RAG on the companies' latest annual reports to answer questions about them. It leverages Azure AI Search for document retrieval, GPT-4o-mini-tts for generation and TTS, and FastAPI for API endpoints. The front-end provides a simple chat interface with TTS playback.
 
 ## Project Overview
 
 - **Objective**: Build and deploy a generative AI chatbot that answers questions using RAG and provides spoken responses.
-- **Dataset**: Sample datasets (annual reports from PSI 20).
-- **Model**: GPT-4o-mini-tts for LLM and TTS, integrated with Azure AI Search.
-- **Platform**: Azure Functions for serverless deployment, FastAPI for API, Azure AI Search for retrieval.
-- **Automation**: Deployment scripts and CI/CD (recommend GitHub Actions for future automation).
+- **Dataset**: Annual reports from PSI 20 companies (not included in repo due to size).
+- **Models**: GPT-4.1-mini for LLM, GPT-4o-mini-tts for TTS, and text-embedding-3-small for embeddings, integrated with Azure AI Search.
+- **Platform**: Azure Functions for serverless deployment, Azure AI Foundry for base model deployments, FastAPI for API, Azure AI Search for retrieval.
 
 ## Repository Structure
 ```
-retriever/         # Azure AI Search logic
-generator/         # LLM and TTS modules
-api/               # FastAPI endpoints, Azure Functions triggers
+generator/         # TTS modules
+api/               # FastAPI endpoints, LLM chat completions, Azure Functions triggers
 frontend/          # Chatbot UI, TTS playback
-data/              # Sample datasets
 tests/             # Unit tests, demo scripts
 .env.example       # Example config
 requirements.txt   # Python dependencies
 package.json       # Front-end dependencies
-CHALLENGES.md      # Write-up on technical challenges
 ```
 
 ## Prerequisites
 
-- **Azure Subscription**: Active Azure account with access to Azure AI Search and Azure Functions.
+- **Azure Subscription**: Active Azure account with access to Azure AI Services, Azure AI Search and Azure Functions.
 - **GitHub Repository**: Fork or clone this repository.
 - **Secrets**:
   - `AZURE_SEARCH_ENDPOINT`, `AZURE_SEARCH_API_KEY`, `AZURE_SEARCH_INDEX`
   - `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_DEPLOYMENT`, `TTS_MODEL_NAME`
   - `EMBEDDING_MODEL_NAME`
 - **Tools**:
-  - Azure CLI
   - Python 3.10+
   - Node.js (for front-end)
 
@@ -66,10 +61,9 @@ CHALLENGES.md      # Write-up on technical challenges
 ## Pipeline Workflow
 
 1. **User Query**: User submits a question via the front-end.
-2. **Retrieval**: Retriever module queries Azure AI Search for relevant documents.
-3. **Generation**: Generator module (GPT-4o-mini-tts) creates a response using retrieved context.
-4. **TTS**: Generator synthesizes speech from the response.
-5. **Response**: API returns text and audio to the front-end for playback.
+2. **Retrieval**: Retriever module (GPT-4.1-mini) queries Azure AI Search for relevant documents and creates a response using retrieved context.
+3. **TTS**: Generator (GPT-4o-mini-tts) synthesizes speech from the response.
+4. **Response**: API returns text and audio to the front-end for playback.
 
 ## Dependencies
 
