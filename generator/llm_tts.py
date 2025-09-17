@@ -1,35 +1,29 @@
 """
 Generator module for LLM and TTS integration.
 - Uses GPT-4o-mini-tts via Azure OpenAI SDK
-- Encapsulates both text generation and text-to-speech
+- Encapsulates text-to-speech
 """
 import os
-import openai
+import base64
+from openai import AzureOpenAI
+from dotenv import load_dotenv
 
-OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
-OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_DEPLOYMENT")
-TTS_MODEL_NAME = os.getenv("TTS_MODEL_NAME", "GPT-4o-mini-tts")
+load_dotenv()
 
-openai.api_type = "azure"
-openai.api_key = OPENAI_API_KEY
-openai.api_base = OPENAI_ENDPOINT
-openai.api_version = "2023-05-15"
+client = AzureOpenAI(
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    api_version="2025-03-01-preview"
+)
 
-class LLM_TTS_Generator:
-    def __init__(self):
-        self.deployment = OPENAI_DEPLOYMENT
-        self.tts_model = TTS_MODEL_NAME
-
-    def generate_response(self, prompt):
-        response = openai.ChatCompletion.create(
-            engine=self.deployment,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=512
-        )
-        return response["choices"][0]["message"]["content"]
-
-    def synthesize_speech(self, text):
-        # Placeholder for TTS API call (Azure OpenAI Speech or similar)
-        # Return audio bytes or file path
-        return b"AUDIO_DATA"  # Replace with actual TTS integration
+def synthesize_speech(text):
+    with client.audio.speech.with_streaming_response.create(
+        model=os.getenv("TTS_MODEL_NAME"),
+        voice="coral",
+        input=text,
+        instructions="Speak in a cheerful and positive tone.",
+    ) as response:
+        audio_data = b""
+        for chunk in response.iter_bytes():
+            audio_data += chunk
+        return base64.b64encode(audio_data).decode('utf-8')

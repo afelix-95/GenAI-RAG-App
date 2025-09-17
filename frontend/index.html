@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GenAI-RAG-App Chatbot</title>
+  <title>PSI 20 Chatbot</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 2em; }
     #chat { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: auto; margin-bottom: 1em; }
@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <h1>GenAI-RAG-App Chatbot</h1>
+  <h1>PSI 20 Chatbot</h1>
   <div id="chat"></div>
   <input id="input" type="text" placeholder="Type your question..." />
   <button id="send">Send</button>
@@ -33,10 +33,9 @@
       });
       const data = await res.json();
       chatDiv.innerHTML += `<div><b>Bot:</b> ${data.response}</div>`;
-      // TTS playback (placeholder: expects audio as base64 or URL)
+      // TTS playback
       if (data.audio) {
-        // For demo, just show audio element
-        tts.src = data.audio; // Replace with actual audio URL or data
+        tts.src = "data:audio/mpeg;base64," + data.audio;
         tts.style.display = 'block';
         tts.play();
       }

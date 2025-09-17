@@ -5,13 +5,13 @@ FastAPI endpoints for GenAI-RAG-App
 """
 import os
 from dotenv import load_dotenv
-load_dotenv()
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from openai import AzureOpenAI
-from generator.llm_tts import LLM_TTS_Generator
+from generator.llm_tts import synthesize_speech
 
+load_dotenv()
 app = FastAPI()
 
 # Mount static files
@@ -25,14 +25,14 @@ async def serve_frontend():
 # Initialize Azure OpenAI client
 open_ai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 open_ai_key = os.getenv("AZURE_OPENAI_API_KEY")
-chat_model = os.getenv("TTS_MODEL_NAME")
+chat_model = os.getenv("LLM_MODEL_NAME")
 embedding_model = os.getenv("EMBEDDING_MODEL_NAME")
 search_url = os.getenv("AZURE_SEARCH_ENDPOINT")
 search_key = os.getenv("AZURE_SEARCH_API_KEY")
 index_name = os.getenv("AZURE_SEARCH_INDEX")
 
 chat_client = AzureOpenAI(
-    api_version="2024-12-01-preview",
+    api_version="2025-03-01-preview",
     azure_endpoint=open_ai_endpoint,
     api_key=open_ai_key
 )
@@ -40,13 +40,10 @@ chat_client = AzureOpenAI(
 # System message for PSI 20 expert
 system_message = "As a PSI 20 expert, answer questions using context from companies' annual reports. Prioritize financial metrics (e.g., revenue, EBITDA), operations, and risks. Be precise, use data from reports, and note any limitations (e.g., 'Based on 2023 data'). Keep responses engaging for speech. Decline unrelated topics: 'My knowledge is limited to PSI 20 reports.'"
 
-# TTS generator
-tts_generator = LLM_TTS_Generator()
 
 def clean_response(text):
     """Remove document references like [doc1], [1], etc. from the response."""
     import re
-    # Remove patterns like [doc1], [1], [ref: something]
     text = re.sub(r'\[.*?\]', '', text)
     return text.strip()
 
@@ -97,7 +94,7 @@ async def chat(request: Request):
     response_text = clean_response(response_text)
 
     # Generate TTS audio
-    audio = tts_generator.synthesize_speech(response_text)
+    audio = synthesize_speech(response_text)
 
     return {"response": response_text, "audio": str(audio)}
 
