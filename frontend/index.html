@@ -5,29 +5,39 @@
   <title>PSI 20 Chatbot</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 2em; }
+    h1 { text-align: center; }
     #chat { width: 100%; height: 300px; border: 1px solid #ccc; overflow-y: auto; margin-bottom: 1em; }
     #input { width: 80%; }
     #send { width: 18%; }
+    #loading { display: none; color: gray; }
+    footer { text-align: center; margin-top: 2em; }
   </style>
 </head>
 <body>
   <h1>PSI 20 Chatbot</h1>
+  <p>This chatbot provides information about PSI 20 companies using Retrieval-Augmented Generation (RAG) with Azure AI Search and OpenAI GPT models. Ask questions about Portuguese stock market companies!</p>
   <div id="chat"></div>
   <input id="input" type="text" placeholder="Type your question..." />
   <button id="send">Send</button>
+  <div id="loading">Loading...</div>
   <audio id="tts" controls style="display:none;"></audio>
+  <footer>
+    <a href="https://github.com/afelix-95/GenAI-RAG-App" target="_blank">View source code on GitHub</a>
+  </footer>
   <script>
     const chatDiv = document.getElementById('chat');
     const input = document.getElementById('input');
     const send = document.getElementById('send');
+    const loading = document.getElementById('loading');
     const tts = document.getElementById('tts');
     const API_BASE_URL = window.location.origin + '/api';
     
-    send.onclick = async () => {
+    const sendMessage = async () => {
       const query = input.value;
       if (!query) return;
       chatDiv.innerHTML += `<div><b>You:</b> ${query}</div>`;
       input.value = '';
+      loading.style.display = 'block';
       
       try {
         const res = await fetch(`${API_BASE_URL}/chat`, {
@@ -35,6 +45,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query })
         });
+        
+        loading.style.display = 'none';
         
         if (!res.ok) {
           const errorText = await res.text();
@@ -52,9 +64,18 @@
           tts.play();
         }
       } catch (error) {
+        loading.style.display = 'none';
         chatDiv.innerHTML += `<div><b>Bot:</b> <span style="color: red;">Network error: ${error.message}</span></div>`;
       }
     };
+    
+    send.onclick = sendMessage;
+    
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
   </script>
 </body>
 </html>
