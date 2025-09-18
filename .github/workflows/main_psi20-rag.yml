@@ -46,9 +46,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -59,17 +57,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-
-      - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip
-          rm release.zip
         
-      - name: 'Deploy to Azure Functions'
-        uses: Azure/functions-action@v1
-        id: deploy-to-function
+      - name: Login to Azure
+        uses: azure/login@v2
         with:
-          app-name: 'psi20-rag'
-          slot-name: 'Production'
-          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3848D0EFB1284915A18301D9779EBC83 }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 'Deploy to Azure Functions'
+        run: |
+          az functionapp deployment source config-zip --name psi20-rag --resource-group rg-rag-webapp --src release.zip
