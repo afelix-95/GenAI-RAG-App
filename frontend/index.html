@@ -28,18 +28,31 @@
       if (!query) return;
       chatDiv.innerHTML += `<div><b>You:</b> ${query}</div>`;
       input.value = '';
-      const res = await fetch(`${API_BASE_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
-      });
-      const data = await res.json();
-      chatDiv.innerHTML += `<div><b>Bot:</b> ${data.response}</div>`;
-      // TTS playback
-      if (data.audio) {
-        tts.src = "data:audio/mpeg;base64," + data.audio;
-        tts.style.display = 'block';
-        tts.play();
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        
+        if (!res.ok) {
+          const errorText = await res.text();
+          chatDiv.innerHTML += `<div><b>Bot:</b> <span style="color: red;">Error ${res.status}: ${errorText}</span></div>`;
+          return;
+        }
+        
+        const data = await res.json();
+        chatDiv.innerHTML += `<div><b>Bot:</b> ${data.response || 'No response'}</div>`;
+        
+        // TTS playback
+        if (data.audio) {
+          tts.src = "data:audio/mpeg;base64," + data.audio;
+          tts.style.display = 'block';
+          tts.play();
+        }
+      } catch (error) {
+        chatDiv.innerHTML += `<div><b>Bot:</b> <span style="color: red;">Network error: ${error.message}</span></div>`;
       }
     };
   </script>
