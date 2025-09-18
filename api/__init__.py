@@ -3,8 +3,6 @@ Azure Functions entry point for GenAI-RAG-App
 """
 import azure.functions as func
 import json
-from dotenv import load_dotenv
-load_dotenv()
 
 # Import the existing logic
 from retriever.azure_search import search_retriever
@@ -48,7 +46,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse(status_code=204)
 
         # Handle chat API
-        if req.method == "POST" and req.route_params.get("route") == "/chat":
+        if req.method == "POST" and req.route_params.get("route") == "chat":
             try:
                 req_body = req.get_json()
                 user_query = req_body.get("query", "")
