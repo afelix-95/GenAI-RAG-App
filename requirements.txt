@@ -1,5 +1,4 @@
 fastapi
-azure-search-documents
 openai
 uvicorn
 pytest

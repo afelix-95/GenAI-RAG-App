@@ -12,8 +12,9 @@ This project demonstrates an end-to-end generative AI chatbot pipeline with Retr
 
 ## Repository Structure
 ```
-generator/         # TTS modules
-api/               # FastAPI endpoints, LLM chat completions, Azure Functions triggers
+retriever/         # Azure AI Search logic and LLM response generation (GPT-4.1-mini)
+generator/         # TTS audio synthesis modules (GPT-4o-mini-tts)
+api/               # FastAPI endpoints, Azure Functions triggers
 frontend/          # Chatbot UI, TTS playback
 tests/             # Unit tests, demo scripts
 .env.example       # Example config
@@ -60,15 +61,15 @@ package.json       # Front-end dependencies
 
 ## Pipeline Workflow
 
-1. **User Query**: User submits a question via the front-end.
-2. **Retrieval**: Retriever module (GPT-4.1-mini) queries Azure AI Search for relevant documents and creates a response using retrieved context.
-3. **TTS**: Generator (GPT-4o-mini-tts) synthesizes speech from the response.
-4. **Response**: API returns text and audio to the front-end for playback.
+1. **User Query**: User submits a question via the front-end chat interface.
+2. **Retrieval & Generation**: Retriever module uses GPT-4.1-mini with Azure AI Search RAG to find relevant document snippets and generate a contextual response.
+3. **TTS Synthesis**: Generator module uses GPT-4o-mini-tts to synthesize speech audio (MP3) from the response text, returned as base64-encoded data.
+4. **Response**: API returns both text and audio data to the front-end for display and playback.
 
 ## Dependencies
 
-- **Python**: See `requirements.txt` for backend dependencies (FastAPI, azure-search-documents, openai, python-dotenv, etc.)
-- **Node.js**: See `package.json` for front-end dependencies.
+- **Python**: See `requirements.txt` for backend dependencies (FastAPI, openai, python-dotenv, uvicorn, pytest)
+- **Node.js**: See `package.json` for front-end dependencies (minimal setup for static serving)
 
 ## Monitoring and Outputs
 
@@ -80,6 +81,8 @@ package.json       # Front-end dependencies
 
 - **Authentication Errors**: Verify environment variables and Azure credentials.
 - **Search/Model Issues**: Ensure Azure AI Search index is populated and OpenAI credentials are valid.
+- **TTS Audio Not Playing**: Check browser console for errors; ensure base64 audio data is being received.
+- **Favicon 404 Errors**: These are normal and handled by returning 204 No Content to prevent repeated requests.
 - **Deployment Errors**: Check Azure Functions logs and configuration.
 
 ## License
