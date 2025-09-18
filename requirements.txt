@@ -2,4 +2,6 @@ fastapi
 openai
 uvicorn
 pytest
+pytest-asyncio
 python-dotenv
+azure-functions

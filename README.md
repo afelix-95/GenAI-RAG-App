@@ -57,7 +57,45 @@ package.json       # Front-end dependencies
 	- Open the front-end in your browser: `http://localhost:8000/` (served by the API)
 
 6. **Deploy**:
-	- Use Azure Functions deployment scripts (see documentation for details).
+	- **Azure Functions (API)**: The API is configured for Azure Functions deployment. Use the GitHub Actions workflow in `.github/workflows/deploy-functions.yml` for automated deployment.
+	- **Azure Static Web Apps (Frontend)**: The frontend can be deployed separately to Azure Static Web Apps using the workflow in `.github/workflows/deploy-static-web-app.yml`.
+	- **Manual Deployment**: Use Azure CLI or Azure Portal to deploy the Azure Functions app.
+	- **Secrets Setup**: In your GitHub repository, add the following secrets:
+		- `AZUREAPPSERVICE_PUBLISHPROFILE`: Azure Functions publish profile
+		- `AZURE_STATIC_WEB_APPS_API_TOKEN`: Azure Static Web Apps deployment token
+
+## CI/CD and Deployment
+
+This project uses GitHub Actions for automated deployment to Azure:
+
+- **Azure Functions Workflow** (`.github/workflows/deploy-functions.yml`):
+  - Triggers on push to `main` branch or manual dispatch
+  - Builds and deploys the Python API to Azure Functions
+  - Requires `AZUREAPPSERVICE_PUBLISHPROFILE` secret
+
+- **Azure Static Web Apps Workflow** (`.github/workflows/deploy-static-web-app.yml`):
+  - Triggers on push to `main` branch or manual dispatch
+  - Builds and deploys the frontend to Azure Static Web Apps
+  - Requires `AZURE_STATIC_WEB_APPS_API_TOKEN` secret
+
+### Deployment Steps
+
+1. **Set up Azure Resources**:
+   - Create an Azure Functions app
+   - Create an Azure Static Web Apps resource
+   - Configure CORS in Azure Functions to allow the Static Web Apps domain
+
+2. **Configure GitHub Secrets**:
+   - Get the publish profile from Azure Functions
+   - Get the deployment token from Azure Static Web Apps
+   - Add them as repository secrets
+
+3. **Deploy**:
+   - Push to the `main` branch to trigger automated deployment
+   - Or manually trigger the workflows from the Actions tab
+
+4. **Update Frontend URLs**:
+   - After deployment, update the frontend to point to the Azure Functions API URL
 
 ## Pipeline Workflow
 
