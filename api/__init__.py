@@ -48,7 +48,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse(status_code=204)
 
         # Handle chat API
-        if req.method == "POST" and req.route_params.get("route") == "chat":
+        if req.method == "POST" and req.route_params.get("route") == "v1/chat":
             try:
                 req_body = req.get_json()
                 user_query = req_body.get("query", "")
