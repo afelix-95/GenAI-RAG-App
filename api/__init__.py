@@ -3,7 +3,6 @@ Azure Functions entry point for GenAI-RAG-App
 """
 import azure.functions as func
 import json
-import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -11,23 +10,7 @@ load_dotenv()
 from retriever.azure_search import search_retriever
 from generator.llm_tts import synthesize_speech
 
-# Initialize clients (same as main.py)
-open_ai_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-open_ai_key = os.getenv("AZURE_OPENAI_API_KEY")
-chat_model = os.getenv("TTS_MODEL_NAME")
-embedding_model = os.getenv("EMBEDDING_MODEL_NAME")
-search_url = os.getenv("AZURE_SEARCH_ENDPOINT")
-search_key = os.getenv("AZURE_SEARCH_API_KEY")
-index_name = os.getenv("AZURE_SEARCH_INDEX")
 
-# System message
-system_message = "As a PSI 20 expert, answer questions using context from companies' annual reports. Prioritize financial metrics (e.g., revenue, EBITDA), operations, and risks. Be precise, use data from reports, and note any limitations (e.g., 'Based on 2023 data'). Keep responses engaging for speech. Decline unrelated topics: 'My knowledge is limited to PSI 20 reports.'"
-
-def clean_response(text):
-    """Remove document references from response."""
-    import re
-    text = re.sub(r'\[.*?\]', '', text)
-    return text.strip()
 
 async def main(req: func.HttpRequest) -> func.HttpResponse:
     """Azure Functions HTTP trigger"""
@@ -80,49 +63,8 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
                     )
 
-                # Use Azure OpenAI with RAG (same logic as main.py)
-                from openai import AzureOpenAI
-
-                chat_client = AzureOpenAI(
-                    api_version="2024-12-01-preview",
-                    azure_endpoint=open_ai_endpoint,
-                    api_key=open_ai_key
-                )
-
-                prompt = [
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": user_query}
-                ]
-
-                rag_params = {
-                    "data_sources": [
-                        {
-                            "type": "azure_search",
-                            "parameters": {
-                                "endpoint": search_url,
-                                "index_name": index_name,
-                                "authentication": {
-                                    "type": "api_key",
-                                    "key": search_key,
-                                },
-                                "query_type": "vector",
-                                "embedding_dependency": {
-                                    "type": "deployment_name",
-                                    "deployment_name": embedding_model,
-                                },
-                            }
-                        }
-                    ],
-                }
-
-                response = chat_client.chat.completions.create(
-                    model=chat_model,
-                    messages=prompt,
-                    extra_body=rag_params
-                )
-
-                response_text = response.choices[0].message.content or ""
-                response_text = clean_response(response_text)
+                # Retrieve response using RAG
+                response_text = search_retriever(user_query)
 
                 # Generate TTS
                 audio = synthesize_speech(response_text)

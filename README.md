@@ -68,34 +68,40 @@ package.json       # Front-end dependencies
 
 This project uses GitHub Actions for automated deployment to Azure:
 
-- **Azure Functions Workflow** (`.github/workflows/deploy-functions.yml`):
-  - Triggers on push to `main` branch or manual dispatch
-  - Builds and deploys the Python API to Azure Functions
-  - Requires `AZUREAPPSERVICE_PUBLISHPROFILE` secret
-
-- **Azure Static Web Apps Workflow** (`.github/workflows/deploy-static-web-app.yml`):
-  - Triggers on push to `main` branch or manual dispatch
-  - Builds and deploys the frontend to Azure Static Web Apps
-  - Requires `AZURE_STATIC_WEB_APPS_API_TOKEN` secret
+- **Azure Functions (API Backend)**: Successfully deployed to `psi20expertapp` in Canada Central region
+- **Workflow**: `.github/workflows/main_psi20expertapp.yml` handles build and deployment
+- **Deployment Method**: Uses Azure CLI zip deployment
 
 ### Deployment Steps
 
 1. **Set up Azure Resources**:
-   - Create an Azure Functions app
-   - Create an Azure Static Web Apps resource
-   - Configure CORS in Azure Functions to allow the Static Web Apps domain
+   - Azure Functions app
+   - Azure AI Search service
+   - Azure OpenAI service with deployments for (recommended):
+     - `gpt-4.1-mini` (chat completions)
+     - `gpt-4o-mini-tts` (text-to-speech)
+     - `text-embedding-3-small` (embeddings)
 
-2. **Configure GitHub Secrets**:
-   - Get the publish profile from Azure Functions
-   - Get the deployment token from Azure Static Web Apps
-   - Add them as repository secrets
+2. **Configure Environment Variables in Azure**:
+   ```bash
+   az functionapp config appsettings set --name your-app-name --resource-group your-resource-group --settings \
+     AZURE_SEARCH_ENDPOINT="your-search-endpoint" \
+     AZURE_SEARCH_API_KEY="your-search-key" \
+     AZURE_SEARCH_INDEX="your-index-name" \
+     AZURE_OPENAI_API_KEY="your-openai-key" \
+     AZURE_OPENAI_ENDPOINT="your-openai-endpoint" \
+     CHAT_MODEL_NAME="your-llm-model" \
+     TTS_MODEL_NAME="your-tts-model" \
+     EMBEDDING_MODEL_NAME="your-embedding-model"
+   ```
 
 3. **Deploy**:
-   - Push to the `main` branch to trigger automated deployment
-   - Or manually trigger the workflows from the Actions tab
+   - Push to `main` branch to trigger automated deployment
+   - Or run: `az functionapp deployment source config-zip --name psi20expertapp --resource-group psi20expertapp_group --src .`
 
-4. **Update Frontend URLs**:
-   - After deployment, update the frontend to point to the Azure Functions API URL
+4. **Access the Application**:
+   - Frontend: `https://psi20expertapp-g4b4b0dnceebf0fk.canadacentral-01.azurewebsites.net/`
+   - API: `https://psi20expertapp-g4b4b0dnceebf0fk.canadacentral-01.azurewebsites.net/chat`
 
 ## Pipeline Workflow
 
