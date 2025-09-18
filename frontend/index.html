@@ -21,11 +21,7 @@
     const input = document.getElementById('input');
     const send = document.getElementById('send');
     const tts = document.getElementById('tts');
-    // API endpoint - update this if deploying frontend separately
-    const API_BASE_URL = window.location.origin; // Use relative URLs when served by same app
-    
-    // For separate deployment, use:
-    // const API_BASE_URL = 'https://psi20expertapp-g4b4b0dnceebf0fk.canadacentral-01.azurewebsites.net';
+    const API_BASE_URL = 'https://psi20expertapp-g4b4b0dnceebf0fk.canadacentral-01.azurewebsites.net';
     
     send.onclick = async () => {
       const query = input.value;
