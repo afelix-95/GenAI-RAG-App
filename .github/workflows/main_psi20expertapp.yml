@@ -44,9 +44,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,11 +56,6 @@ jobs:
         with:
           name: python-app
 
-      - name: Unzip artifact for deployment
-        run: |
-          unzip release.zip
-          rm release.zip
-        
       - name: Login to Azure
         uses: azure/login@v2
         with:
