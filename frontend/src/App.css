@@ -8,10 +8,6 @@
 .app {
   font-family: Arial, sans-serif;
   color: white;
-  background-image: url('/header.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   min-height: 100vh;
   padding: 2em;
 }
