@@ -44,7 +44,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PSI20_WEBAPP }}
           action: "upload"
-          app_build_command: 'cd frontend && npm run build'
+          app_build_command: 'npm run build'
           api_build_command: 'pip install -r api/requirements.txt'
           skip_app_build: false
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
