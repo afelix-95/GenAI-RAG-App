@@ -43,6 +43,8 @@ jobs:
           cd frontend
           npm ci
           npm run build
+        env:
+          NODE_VERSION: 22
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
