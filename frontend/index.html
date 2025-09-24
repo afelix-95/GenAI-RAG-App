@@ -1,99 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>PSI-20 Chatbot</title>
-  <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 2em; 
-      color: white;
-      background-image: url('./media/header.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      min-height: 100vh;
-    }
-    h1 { text-align: center; }
-    #chat { 
-      width: 100%; 
-      height: 300px; 
-      border: 1px solid #ccc; 
-      overflow-y: auto; 
-      margin-bottom: 1em; 
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-    }
-    #input { width: 80%; }
-    #send { width: 18%; }
-    #loading { display: none; color: white; }
-    footer { text-align: center; margin-top: 2em; }
-    footer a { color: white; }
-  </style>
-</head>
-<body>
-  <h1>PSI-20 Chatbot</h1>
-  <p>This chatbot provides information about PSI-20 companies using Retrieval-Augmented Generation (RAG) with Azure AI Search and OpenAI GPT models. Ask questions about Portuguese stock market companies!</p>
-  <div id="chat"></div>
-  <input id="input" type="text" placeholder="Type your question..." />
-  <button id="send">Send</button>
-  <div id="loading">Loading...</div>
-  <audio id="tts" controls style="display:none;"></audio>
-  <footer>
-    <a href="https://github.com/afelix-95/GenAI-RAG-App" target="_blank">View source code on GitHub</a>
-  </footer>
-  <script>
-    const chatDiv = document.getElementById('chat');
-    const input = document.getElementById('input');
-    const send = document.getElementById('send');
-    const loading = document.getElementById('loading');
-    const tts = document.getElementById('tts');
-    const API_BASE_URL = window.location.origin + '/api';
-    
-    const sendMessage = async () => {
-      const query = input.value;
-      if (!query) return;
-      chatDiv.innerHTML += `<div><b>You:</b> ${query}</div>`;
-      input.value = '';
-      loading.style.display = 'block';
-      
-      try {
-        const res = await fetch(`${API_BASE_URL}/chat`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
-        });
-        
-        loading.style.display = 'none';
-        
-        if (!res.ok) {
-          const errorText = await res.text();
-          chatDiv.innerHTML += `<div><b>Bot:</b> <span style="color: red;">Error ${res.status}: ${errorText}</span></div>`;
-          return;
-        }
-        
-        const data = await res.json();
-        chatDiv.innerHTML += `<div><b>Bot:</b> ${data.response || 'No response'}</div>`;
-        
-        // TTS playback
-        if (data.audio) {
-          tts.src = "data:audio/mpeg;base64," + data.audio;
-          tts.style.display = 'block';
-          tts.play();
-        }
-      } catch (error) {
-        loading.style.display = 'none';
-        chatDiv.innerHTML += `<div><b>Bot:</b> <span style="color: red;">Network error: ${error.message}</span></div>`;
-      }
-    };
-    
-    send.onclick = sendMessage;
-    
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        sendMessage();
-      }
-    });
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
