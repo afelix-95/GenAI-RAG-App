@@ -1,13 +1,12 @@
 """
 FastAPI endpoints for GenAI-RAG-App
-- Integrates Azure OpenAI with RAG for PSI 20 queries
+- Integrates Azure OpenAI with RAG for PSI 20 queries using Semantic Kernel
 - Designed for Azure Functions deployment
 """
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
-from retriever.azure_search import search_retriever
-from generator.llm_tts import synthesize_speech
+from semantic_kernel_setup import process_query
 
 app = FastAPI()
 
@@ -31,11 +30,8 @@ async def chat(request: Request):
     if not user_query:
         return {"response": "Please enter a question.", "audio": ""}
 
-    # Retrieve response using RAG
-    response_text = search_retriever(user_query)
+    # Process query using Semantic Kernel orchestration
+    result = await process_query(user_query)
 
-    # Generate TTS audio
-    audio = synthesize_speech(response_text)
-
-    return {"response": response_text, "audio": str(audio)}
+    return result
 
