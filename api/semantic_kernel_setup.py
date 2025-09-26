@@ -3,10 +3,17 @@ Semantic Kernel setup for GenAI-RAG-App
 Orchestrates AI services using Microsoft Semantic Kernel
 """
 import os
+import sys
 import asyncio
+from dotenv import load_dotenv
 from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
-from semantic_kernel.functions import KernelFunctionFromMethod
+from semantic_kernel.functions import kernel_function, KernelArguments
+
+# Add project root to Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+load_dotenv()
+
 from retriever.azure_search import search_retriever
 from generator.llm_tts import synthesize_speech
 
@@ -16,36 +23,36 @@ kernel = Kernel()
 # Add Azure OpenAI service
 kernel.add_service(
     AzureChatCompletion(
-        deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt-4o-mini"),
+        deployment_name=os.getenv("LLM_MODEL_NAME"),
         endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
         api_key=os.getenv("AZURE_OPENAI_API_KEY"),
     )
 )
 
-# Create RAG skill (combines retrieval and generation)
-def process_rag_query(query: str) -> str:
-    """Process RAG query using Azure AI Search and OpenAI"""
-    return search_retriever(query)
+class RAGPlugin:
+    """Plugin for RAG operations"""
 
-# Create TTS skill
-def text_to_speech(text: str) -> str:
-    """Convert text to speech"""
-    return synthesize_speech(text)
+    @kernel_function(name="ProcessRAGQuery", description="Process RAG query using Azure AI Search and OpenAI")
+    def process_rag_query(self, query: str) -> str:
+        """Process RAG query using Azure AI Search and OpenAI"""
+        return search_retriever(query)
 
-# Register skills
-kernel.add_function(
-    KernelFunctionFromMethod(method=process_rag_query, plugin_name="RAGPlugin", function_name="ProcessQuery")
-)
-kernel.add_function(
-    KernelFunctionFromMethod(method=text_to_speech, plugin_name="RAGPlugin", function_name="TTS")
-)
+    @kernel_function(name="TextToSpeech", description="Convert text to speech using Azure OpenAI")
+    def text_to_speech(self, text: str) -> str:
+        """Convert text to speech"""
+        return synthesize_speech(text)
+
+# Add the plugin to the kernel
+kernel.add_plugin(RAGPlugin(), plugin_name="RAGPlugin")
 
 async def process_query(query: str) -> dict:
     """Orchestrate the RAG pipeline using Semantic Kernel"""
     # Process RAG query
-    response_text = await kernel.invoke("RAGPlugin", "ProcessQuery", query=query)
+    args = KernelArguments(query=query)
+    response_text = await kernel.invoke(plugin_name="RAGPlugin", function_name="ProcessRAGQuery", arguments=args)
 
     # Generate audio
-    audio = await kernel.invoke("RAGPlugin", "TTS", text=response_text)
+    audio_args = KernelArguments(text=str(response_text))
+    audio = await kernel.invoke(plugin_name="RAGPlugin", function_name="TextToSpeech", arguments=audio_args)
 
     return {"response": str(response_text), "audio": str(audio)}
